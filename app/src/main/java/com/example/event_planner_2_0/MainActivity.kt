@@ -102,7 +102,7 @@ class MainActivity : AppCompatActivity() {
                 || super.onSupportNavigateUp()
     }
 
-    private fun generatePDF() {
+    private fun generatePDF(event: Event) {
         val pdfDocument = PdfDocument()
         val paint = Paint()
         val pageInfo = PdfDocument.PageInfo.Builder(300, 600, 1).create()
@@ -112,7 +112,36 @@ class MainActivity : AppCompatActivity() {
         // Draw text
         paint.textSize = 16f
         paint.isFakeBoldText = true
-        canvas.drawText("Hello, this is a sample PDF!", 50f, 50f, paint)
+        when (event.type) {
+            "Event" -> {
+                canvas.drawText("~${event.title}~", 50f, 50f, paint)
+                canvas.drawText("${event.date}", 50f, 50f, paint)
+                canvas.drawText("${event.time}", 50f, 50f, paint)
+                canvas.drawText("Location: ${event.address}", 50f, 50f, paint)
+                canvas.drawText("What will happen? ${event.description}", 50f, 50f, paint)
+            }
+            "FHE" -> {
+                canvas.drawText("~${event.title}~", 50f, 50f, paint)
+                canvas.drawText("${event.date}", 50f, 50f, paint)
+                canvas.drawText("${event.time}", 50f, 50f, paint)
+                canvas.drawText("Location: ${event.address}", 50f, 50f, paint)
+                canvas.drawText("What will happen? ${event.description}", 50f, 50f, paint)
+            }
+            "Lecture" -> {
+                canvas.drawText("~${event.title}~", 50f, 50f, paint)
+                canvas.drawText("${event.date}", 50f, 50f, paint)
+                canvas.drawText("${event.time}", 50f, 50f, paint)
+                canvas.drawText("Location: ${event.address}", 50f, 50f, paint)
+                canvas.drawText("What will happen? ${event.description}", 50f, 50f, paint)
+            }
+            "Wedding" -> {
+                canvas.drawText("~${event.title}~", 50f, 50f, paint)
+                canvas.drawText("${event.date}", 50f, 50f, paint)
+                canvas.drawText("${event.time}", 50f, 50f, paint)
+                canvas.drawText("Location: ${event.address}", 50f, 50f, paint)
+                canvas.drawText("What will happen? ${event.description}", 50f, 50f, paint)
+            }
+        }
 
         pdfDocument.finishPage(page)
 
@@ -186,7 +215,8 @@ fun EventForm(eventType: String, onSubmit: (Event) -> Unit) {
             .fillMaxSize()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
+    )
+    {
         Text("Create Event ($eventType)", style = MaterialTheme.typography.headlineMedium)
 
         // Title input
