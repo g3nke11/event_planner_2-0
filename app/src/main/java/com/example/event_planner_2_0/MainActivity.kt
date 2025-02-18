@@ -34,6 +34,7 @@ import android.widget.Button as Button
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.os.Build
+import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -45,6 +46,10 @@ import androidx.compose.ui.unit.dp
 import java.time.LocalDate
 import java.time.LocalTime
 import java.util.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -54,21 +59,19 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        enableEdgeToEdge()
+        val events = listOf<Event>()
+        setContent {
+            RSSReaderTheme {
+                Scaffold(modifier = Modifier.fillMaxSize()) {
+                    LazyColumn {
+                        items(events) {
+                            ListItem(it)
+                        }
+                    }
+                }
+            }
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        setSupportActionBar(binding.toolbar)
-
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        appBarConfiguration = AppBarConfiguration(navController.graph)
-        setupActionBarWithNavController(navController, appBarConfiguration)
-
-        binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null)
-                .setAnchorView(R.id.fab).show()
         }
 
         val btnGeneratePDF: Button = findViewById(R.id.btn_generate_pdf)
@@ -123,6 +126,27 @@ class MainActivity : AppCompatActivity() {
             println("PDF Created: ${file.absolutePath}")
         } catch (e: IOException) {
             e.printStackTrace()
+        }
+    }
+}
+
+@Composable
+fun ListItem(event: Event) {
+    Card(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = event.title
+            )
+            Text(
+                text = event.description
+            )
         }
     }
 }

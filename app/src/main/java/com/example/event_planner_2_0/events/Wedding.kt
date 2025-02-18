@@ -6,6 +6,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 class Wedding(
+    override val type: String = "Wedding",
     override val title: String,
     override val description: String,
     override val date: LocalDate,
@@ -13,5 +14,5 @@ class Wedding(
     override val address: String,
     override val tasks: List<Task>,
     val couple: String
-) : Event(title, description, date, time, address, tasks) {
+) : Event(type, title, description, date, time, address, tasks) {
 }

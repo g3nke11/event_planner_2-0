@@ -6,6 +6,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 class Lecture(
+    override val type: String = "Lecture",
     val speaker: String,
     val topic: String,
     override val title: String,
@@ -14,5 +15,5 @@ class Lecture(
     override val time: LocalTime,
     override val address: String,
     override val tasks: List<Task>
-) : Event(title, description, date, time, address, tasks) {
+) : Event(type, title, description, date, time, address, tasks) {
 }

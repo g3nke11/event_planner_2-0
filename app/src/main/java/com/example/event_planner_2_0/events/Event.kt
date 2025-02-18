@@ -5,6 +5,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 open class Event(
+    open val type: String = "Event",
     open val title: String,
     open val description: String,
     open val date: LocalDate,
