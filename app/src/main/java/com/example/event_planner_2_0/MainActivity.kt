@@ -50,6 +50,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
+import android.app.AlertDialog
+import android.view.LayoutInflater
+import android.widget.EditText
+import android.widget.Toast
 
 
 class MainActivity : AppCompatActivity() {
@@ -74,9 +78,46 @@ class MainActivity : AppCompatActivity() {
 
         }
 
+        val btnAddEvent: Button = findViewById(R.id.AddEvent)
+        btnAddEvent.setOnClickListener {
+            showAddEventDialog()
+        }
+
         val btnGeneratePDF: Button = findViewById(R.id.btn_generate_pdf)
         btnGeneratePDF.setOnClickListener {
             generatePDF()
+        }
+    }
+
+    private fun showAddEventDialog() {
+        // Inflate the custom layout
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_event, null)
+        val editTitle: EditText = dialogView.findViewById(R.id.editTitle)
+        val editDescription: EditText = dialogView.findViewById(R.id.editDescription)
+
+        // Create the dialog
+        val dialogBuilder = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setTitle("Add Event")
+            .setPositiveButton("Save") { _, _ ->
+                val title = editTitle.text.toString()
+                val description = editDescription.text.toString()
+                saveEvent(title, description)
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+
+        val alertDialog = dialogBuilder.create()
+        alertDialog.show()
+    }
+
+    private fun saveEvent(title: String, description: String) {
+        if (title.isNotEmpty() && description.isNotEmpty()) {
+            Toast.makeText(this, "Event Saved: $title", Toast.LENGTH_SHORT).show()
+            // TODO: Store the event (e.g., in a database or list)
+        } else {
+            Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
         }
     }
 
