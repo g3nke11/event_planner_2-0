@@ -2,6 +2,7 @@ package com.example.event_planner_2_0
 
 import android.graphics.pdf.PdfDocument
 import android.os.Bundle
+import android.app.AlertDialog
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -10,6 +11,9 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
+import android.view.LayoutInflater
+import android.widget.EditText
+import android.widget.Toast
 import com.example.event_planner_2_0.databinding.ActivityMainBinding
 import android.os.Environment
 import android.widget.Button
@@ -38,15 +42,47 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
-        binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null)
-                .setAnchorView(R.id.fab).show()
+        val btnAddEvent: Button = findViewById(R.id.AddEvent)
+
+        btnAddEvent.setOnClickListener {
+            showAddEventDialog()
         }
 
         val btnGeneratePDF: Button = findViewById(R.id.btn_generate_pdf)
         btnGeneratePDF.setOnClickListener {
             generatePDF()
+        }
+    }
+
+    private fun showAddEventDialog() {
+        // Inflate the custom layout
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_event, null)
+        val editTitle: EditText = dialogView.findViewById(R.id.editTitle)
+        val editDescription: EditText = dialogView.findViewById(R.id.editDescription)
+
+        // Create the dialog
+        val dialogBuilder = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setTitle("Add Event")
+            .setPositiveButton("Save") { _, _ ->
+                val title = editTitle.text.toString()
+                val description = editDescription.text.toString()
+                saveEvent(title, description)
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+
+        val alertDialog = dialogBuilder.create()
+        alertDialog.show()
+    }
+
+    private fun saveEvent(title: String, description: String) {
+        if (title.isNotEmpty() && description.isNotEmpty()) {
+            Toast.makeText(this, "Event Saved: $title", Toast.LENGTH_SHORT).show()
+            // TODO: Store the event (e.g., in a database or list)
+        } else {
+            Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
         }
     }
 

@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.event_planner_2_0"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
