@@ -54,7 +54,8 @@ import android.app.AlertDialog
 import android.view.LayoutInflater
 import android.widget.EditText
 import android.widget.Toast
-
+import androidx.activity.compose.setContent
+import androidx.compose.material3.MaterialTheme
 
 class MainActivity : AppCompatActivity() {
 
