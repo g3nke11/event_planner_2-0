@@ -65,6 +65,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
         enableEdgeToEdge()
         val events = listOf<Event>()
         setContent {
@@ -201,7 +203,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 }
-
 @Composable
 fun ListItem(event: Event) {
     Card(
