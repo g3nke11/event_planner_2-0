@@ -56,6 +56,7 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
+import com.example.rssreader.ui.theme.RSSReaderTheme
 
 class MainActivity : AppCompatActivity() {
 
