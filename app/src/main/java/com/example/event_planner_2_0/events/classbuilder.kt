@@ -22,10 +22,14 @@ class ClassBuilder() {
 
     var date = LocalDate.now()
     var time = LocalTime.now()
+
+    val quintuple = Quintuple("Test","Hello",date, time, "Test")
     
 
     fun createClass(className: String, attributes: Map<String, Any>): KClass<out Event> {
-        val newClass = object : Event("Event","Test","Hello", date, time, "Test", listOf()) {
+        val newClass = object : Event(quintuple.first,quintuple.second,quintuple.third,quintuple.fourth,quintuple.fifth,
+            listOf()
+        ) {
             init {
                 attributes.forEach { (key, value) ->
                     println("$key: $value")
