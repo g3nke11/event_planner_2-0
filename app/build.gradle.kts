@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.androidx.material3.android)
     implementation(libs.androidx.storage)
     implementation(libs.androidx.storage)
+    implementation(libs.androidx.activity)
     testImplementation(libs.junit)
     testImplementation(libs.junit.junit)
     androidTestImplementation(libs.androidx.junit)
