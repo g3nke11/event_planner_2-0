@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.androidx.storage)
     implementation(libs.androidx.storage)
     testImplementation(libs.junit)
+    testImplementation(libs.junit.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.androidx.activity.compose) // Required for setContent
