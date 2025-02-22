@@ -51,12 +51,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import android.app.AlertDialog
+import android.app.usage.UsageEvents
 import android.view.LayoutInflater
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
-import com.example.rssreader.ui.theme.RSSReaderTheme
 
 class MainActivity : AppCompatActivity() {
 
@@ -70,16 +70,11 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         val events = listOf<Event>()
         setContent {
-            RSSReaderTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) {
-                    LazyColumn {
-                        items(events) {
-                            ListItem(it)
-                        }
-                    }
+            LazyColumn {
+                items(events) {
+                    ListItem(it)
                 }
             }
-
         }
 
         val btnAddEvent: Button = findViewById(R.id.AddEvent)
@@ -157,6 +152,7 @@ class MainActivity : AppCompatActivity() {
         // Draw text
         paint.textSize = 16f
         paint.isFakeBoldText = true
+
         when (event.type) {
             "Event" -> {
                 canvas.drawText("~${event.title}~", 50f, 50f, paint)
@@ -188,7 +184,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+
         pdfDocument.finishPage(page)
+
 
         // Save the PDF file
         val file = File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "sample.pdf")
@@ -198,9 +196,11 @@ class MainActivity : AppCompatActivity() {
             pdfDocument.close()
             fos.close()
             println("PDF Created: ${file.absolutePath}")
-        } catch (e: IOException) {
+        }
+        catch (e: IOException) {
             e.printStackTrace()
         }
+
     }
 }
 @Composable

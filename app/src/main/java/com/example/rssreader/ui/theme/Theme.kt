@@ -15,12 +15,3 @@ private val LightColorScheme = lightColorScheme(
     onBackground = Color.Black,
     onSurface = Color.Black,
 )
-
-@Composable
-fun RSSReaderTheme(content: @Composable () -> Unit) {
-    MaterialTheme(
-        colorScheme = LightColorScheme,
-        typography = Typography,
-        content = content
-    )
-}
