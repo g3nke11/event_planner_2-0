@@ -1,7 +1,5 @@
 package com.example.event_planner_2_0.ui
 
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
@@ -31,25 +29,25 @@ fun EventPlanner() {
                 .padding(horizontal = 10.dp)
         ) {
             composable(route = Navigation.Home.route) {
-                HomeScreen()
+                HomeScreen(navController)
             }
             composable(route = Navigation.Events.route) {
-                EventsScreen()
+                EventsScreen(navController)
             }
             composable(route = Navigation.SingleEvent.route) {
-                SingleEventScreen()
+                SingleEventScreen(navController)
             }
             composable(route = Navigation.Pdf.route) {
-                PdfScreen()
+                PdfScreen(navController)
             }
             composable(route = Navigation.NewTemplate.route) {
-                NewTemplateScreen()
+                NewTemplateScreen(navController)
             }
             composable(route = Navigation.NewEvent.route) {
-                NewEventScreen()
+                NewEventScreen(navController)
             }
             composable(route = Navigation.NewTask.route) {
-                NewTaskScreen()
+                NewTaskScreen(navController)
             }
         }
     }

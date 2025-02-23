@@ -11,20 +11,40 @@ import com.example.event_planner_2_0.events.Event
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import com.example.event_planner_2_0.ui.Navigation
 import java.time.LocalDate
 import java.time.LocalTime
 
 @Composable
-fun NewEventScreen() {
-    Text(text = "New event screen")
+fun NewEventScreen(host: NavHostController) {
+
+    Column() {
+        Text(text = "New event screen")
+        Spacer(Modifier.width(8.dp))
+        NavButton(
+            content = "Cancel",
+            route = Navigation.Events.route,
+            host = host
+        )
+        Spacer(Modifier.width(8.dp))
+        NavButton(
+            content = "Go to New Single Event",
+            route = Navigation.SingleEvent.route,
+            host = host
+        )
+    }
 }
 
 //

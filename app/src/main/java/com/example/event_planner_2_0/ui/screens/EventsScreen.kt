@@ -2,8 +2,11 @@ package com.example.event_planner_2_0.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,6 +17,9 @@ import com.example.event_planner_2_0.events.Event
 import java.time.LocalDate
 import java.time.LocalTime
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Button
+import androidx.navigation.NavHostController
+import com.example.event_planner_2_0.ui.Navigation
 
 
 val myEvent: Event = Event(
@@ -43,17 +49,32 @@ val myEvent: Event = Event(
 )
 
 @Composable
-fun EventsScreen() {
-    Text(text = "Events Screen")
+fun EventsScreen(host: NavHostController) {
+
     val events = listOf<Event>(
         myEvent,
         myEvent,
         myEvent
     )
-    LazyColumn {
-        items(3) {
-            ListItem(myEvent)
+    Column() {
+        LazyColumn {
+            items(3) {
+                Text(text = "Event")
+                ListItem(myEvent)
+            }
         }
+        Spacer(Modifier.width(8.dp))
+        NavButton(
+            content = "Go to Home",
+            route = Navigation.Home.route,
+            host = host
+        )
+        Spacer(Modifier.width(8.dp))
+        NavButton(
+            content = "New Event",
+            route = Navigation.NewEvent.route,
+            host = host
+        )
 
     }
 }

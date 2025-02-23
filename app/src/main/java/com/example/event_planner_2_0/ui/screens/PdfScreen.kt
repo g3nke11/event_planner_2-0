@@ -9,6 +9,7 @@ import android.view.View
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavHostController
 import com.example.event_planner_2_0.entities.Task
 import com.example.event_planner_2_0.events.Event
 import java.io.File
@@ -18,7 +19,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 @Composable
-fun PdfScreen() {
+fun PdfScreen(host: NavHostController) {
     Text(text = "pdf screen")
     val context = LocalContext.current
     GeneratePDF(myEvent, context)
