@@ -1,6 +1,7 @@
 package com.example.event_planner_2_0.ui
 
 import androidx.compose.foundation.layout.padding
+import com.example.event_planner_2_0.events.Event
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
@@ -15,6 +16,7 @@ import com.example.event_planner_2_0.ui.screens.NewTemplateScreen
 import com.example.event_planner_2_0.ui.screens.PdfScreen
 import com.example.event_planner_2_0.ui.screens.SingleEventScreen
 import com.example.event_planner_2_0.ui.theme.EventPlanner20Theme
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun EventPlanner() {

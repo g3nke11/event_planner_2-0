@@ -8,6 +8,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.layout.Column
 import com.example.event_planner_2_0.events.Event
+import com.example.event_planner_2_0.entities.Task
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import androidx.compose.foundation.layout.Arrangement
@@ -20,32 +21,380 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.ui.unit.dp
+import com.example.event_planner_2_0.ui.Navigation
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
-import com.example.event_planner_2_0.ui.Navigation
 import java.time.LocalDate
 import java.time.LocalTime
+import java.util.*
+import android.widget.Toast
+import androidx.compose.material3.TextField
+import androidx.compose.ui.Alignment
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
-fun NewEventScreen(host: NavHostController) {
+fun NewEventScreen(navController: NavHostController) {
+    // Variables to store user input
+    var title by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+    var address by remember { mutableStateOf("") }
+    var date by remember { mutableStateOf(LocalDate.now()) }
+    var time by remember { mutableStateOf(LocalTime.now()) }
+    var taskName by remember { mutableStateOf("") }
+    var taskDescription by remember { mutableStateOf("") }
+    var tasks by remember { mutableStateOf(listOf<Task>()) }
 
-    Column() {
-        Text(text = "New event screen")
-        Spacer(Modifier.width(8.dp))
-        NavButton(
-            content = "Cancel",
-            route = Navigation.Events.route,
-            host = host
+    // Function to save the event
+    fun saveEvent() {
+        val event = Event(
+            id = "",
+            type = "Event",
+            title = title,
+            description = description,
+            date = date,
+            time = time,
+            address = address,
+            tasks = tasks
         )
-        Spacer(Modifier.width(8.dp))
-        NavButton(
-            content = "Go to New Single Event",
-            route = Navigation.SingleEvent.route,
-            host = host
+
+        val firestoreDate = java.util.Date.from(event.date.atStartOfDay().atZone(java.time.ZoneId.systemDefault()).toInstant())
+
+        // Convert LocalTime to java.util.Date (Firestore Timestamp)
+        val firestoreTime = java.util.Date.from(event.time.atDate(LocalDate.now()).atZone(java.time.ZoneId.systemDefault()).toInstant())
+
+        // Convert LocalDate and LocalTime to something Firestore can handle
+        val firestoreEvent = hashMapOf(
+            "type" to event.type,
+            "title" to event.title,
+            "description" to event.description,
+            "date" to com.google.firebase.Timestamp(firestoreDate), // Firestore expects Timestamp
+            "time" to com.google.firebase.Timestamp(firestoreTime), // Firestore expects Timestamp
+            "address" to event.address,
+            "tasks" to event.tasks.map { task -> hashMapOf("name" to task.name, "description" to task.description) } // Map tasks to Firestore format
         )
+
+        val db = FirebaseFirestore.getInstance()
+        db.collection("events")
+            .add(firestoreEvent) // Firestore will automatically assign a document ID
+            .addOnSuccessListener { documentReference ->
+                Toast.makeText(
+                    navController.context,
+                    "Event added with ID: ${documentReference.id}",
+                    Toast.LENGTH_SHORT
+                ).show()
+                // Navigate to the events screen after saving
+                navController.navigate(Navigation.Events.route)
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(
+                    navController.context,
+                    "Error adding event: $e",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+    }
+
+    // UI for New Event Screen
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "Create New Event", modifier = Modifier.padding(bottom = 16.dp))
+
+        // Event Title
+        TextField(
+            value = title,
+            onValueChange = { title = it },
+            label = { Text("Event Title") },
+            modifier = Modifier.fillMaxWidth(),
+            maxLines = 1
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Event Description
+        TextField(
+            value = description,
+            onValueChange = { description = it },
+            label = { Text("Event Description") },
+            modifier = Modifier.fillMaxWidth(),
+            maxLines = 3
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Event Address
+        TextField(
+            value = address,
+            onValueChange = { address = it },
+            label = { Text("Event Address") },
+            modifier = Modifier.fillMaxWidth(),
+            maxLines = 1
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Event Date (Placeholder)
+        Text(text = "Event Date: ${date}", modifier = Modifier.padding(bottom = 8.dp))
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Event Time (Placeholder)
+        Text(text = "Event Time: ${time}", modifier = Modifier.padding(bottom = 8.dp))
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Task name and description input
+        TextField(
+            value = taskName,
+            onValueChange = { taskName = it },
+            label = { Text("Task Name") },
+            modifier = Modifier.fillMaxWidth(),
+            maxLines = 1
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        TextField(
+            value = taskDescription,
+            onValueChange = { taskDescription = it },
+            label = { Text("Task Description") },
+            modifier = Modifier.fillMaxWidth(),
+            maxLines = 2
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Add Task Button
+        Button(onClick = {
+            if (taskName.isNotEmpty() && taskDescription.isNotEmpty()) {
+                tasks = tasks + Task(name = taskName, description = taskDescription)
+                taskName = ""
+                taskDescription = ""
+            }
+        }) {
+            Text(text = "Add Task")
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // List Tasks
+        tasks.forEach { task ->
+            Text(text = "Task: ${task.name} - ${task.description}")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Save Button
+        Button(onClick = { saveEvent() }) {
+            Text(text = "Save Event")
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Navigation Button (Back to Home)
+        Button(onClick = { navController.navigate(Navigation.Home.route) }) {
+            Text(text = "Back to Home")
+        }
     }
 }
+
+
+
+//@Composable
+//fun NewEventScreen(host: NavHostController) {
+//
+//    Column() {
+//        Text(text = "New event screen")
+//        Spacer(Modifier.width(8.dp))
+//        NavButton(
+//            content = "Cancel",
+//            route = Navigation.Events.route,
+//            host = host
+//        )
+//        Spacer(Modifier.width(8.dp))
+//        NavButton(
+//            content = "Go to New Single Event",
+//            route = Navigation.SingleEvent.route,
+//            host = host
+//        )
+//    }
+//}
+//
+//@Composable
+//fun NewEventDialog(
+//    host: NavHostController,
+//    onDismiss: () -> Unit,  // to dismiss the dialog
+//    onEventCreated: (Event) -> Unit  // callback to handle event creation
+//) {
+//    var eventTitle by remember { mutableStateOf(TextFieldValue()) }
+//    var eventDescription by remember { mutableStateOf(TextFieldValue()) }
+//    var eventAddress by remember { mutableStateOf(TextFieldValue()) }
+//    var eventDate by remember { mutableStateOf(LocalDate.now()) }
+//    var eventTime by remember { mutableStateOf(LocalTime.now()) }
+//    var tasks by remember { mutableStateOf(listOf<Task>()) }
+//    var taskInputName by remember { mutableStateOf(TextFieldValue()) }
+//    var taskInputDescription by remember { mutableStateOf(TextFieldValue()) }
+//
+//    // Date Picker
+//    val context = LocalContext.current
+//    val datePickerDialog = remember {
+//        DatePickerDialog(
+//            context,
+//            { _, year, month, dayOfMonth ->
+//                eventDate = LocalDate.of(year, month + 1, dayOfMonth)
+//            },
+//            eventDate.year,
+//            eventDate.monthValue - 1,
+//            eventDate.dayOfMonth
+//        )
+//    }
+//
+//    // Time Picker
+//    val timePickerDialog = remember {
+//        TimePickerDialog(
+//            context,
+//            { _, hourOfDay, minute ->
+//                eventTime = LocalTime.of(hourOfDay, minute)
+//            },
+//            eventTime.hour,
+//            eventTime.minute,
+//            true
+//        )
+//    }
+//
+//    // AlertDialog to create a new event
+//    AlertDialog(
+//        onDismissRequest = { onDismiss() },
+//        title = { Text(text = "Create New Event") },
+//        text = {
+//            Column(modifier = Modifier.padding(16.dp)) {
+//                OutlinedTextField(
+//                    value = eventTitle,
+//                    onValueChange = { eventTitle = it },
+//                    label = { Text("Title") },
+//                    modifier = Modifier.fillMaxWidth()
+//                )
+//                Spacer(modifier = Modifier.height(8.dp))
+//
+//                OutlinedTextField(
+//                    value = eventDescription,
+//                    onValueChange = { eventDescription = it },
+//                    label = { Text("Description") },
+//                    modifier = Modifier.fillMaxWidth()
+//                )
+//                Spacer(modifier = Modifier.height(8.dp))
+//
+//                OutlinedTextField(
+//                    value = eventAddress,
+//                    onValueChange = { eventAddress = it },
+//                    label = { Text("Address") },
+//                    modifier = Modifier.fillMaxWidth()
+//                )
+//                Spacer(modifier = Modifier.height(8.dp))
+//
+//                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+//                    Button(onClick = { datePickerDialog.show() }) {
+//                        Text("Pick Date")
+//                    }
+//                    Text(text = eventDate.toString()) // Show selected date
+//                }
+//                Spacer(modifier = Modifier.height(8.dp))
+//
+//                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+//                    Button(onClick = { timePickerDialog.show() }) {
+//                        Text("Pick Time")
+//                    }
+//                    Text(text = eventTime.toString()) // Show selected time
+//                }
+//                Spacer(modifier = Modifier.height(8.dp))
+//
+//                // Add task name and description inputs
+//                OutlinedTextField(
+//                    value = taskInputName,
+//                    onValueChange = { taskInputName = it },
+//                    label = { Text("Task Name") },
+//                    modifier = Modifier.fillMaxWidth()
+//                )
+//                Spacer(modifier = Modifier.height(8.dp))
+//
+//                OutlinedTextField(
+//                    value = taskInputDescription,
+//                    onValueChange = { taskInputDescription = it },
+//                    label = { Text("Task Description") },
+//                    modifier = Modifier.fillMaxWidth()
+//                )
+//                Spacer(modifier = Modifier.height(8.dp))
+//
+//                Button(
+//                    onClick = {
+//                        if (taskInputName.text.isNotEmpty() && taskInputDescription.text.isNotEmpty()) {
+//                            val newTask = Task(
+//                                name = taskInputName.text,
+//                                description = taskInputDescription.text
+//                            )
+//                            tasks = tasks + newTask
+//                            taskInputName = TextFieldValue()
+//                            taskInputDescription = TextFieldValue()
+//                        }
+//                    },
+//                    modifier = Modifier.fillMaxWidth()
+//                ) {
+//                    Text("Add Task")
+//                }
+//
+//                Spacer(modifier = Modifier.height(8.dp))
+//
+//                // Display the tasks
+//                LazyColumn(modifier = Modifier.fillMaxWidth()) {
+//                    items(tasks) { task ->
+//                        Text(text = "${task.name}: ${task.description}", modifier = Modifier.padding(4.dp))
+//                    }
+//                }
+//            }
+//        },
+//        confirmButton = {
+//            Button(
+//                onClick = {
+//                    // Handle event creation
+//                    onEventCreated(Event(
+//                        title = eventTitle.text,
+//                        description = eventDescription.text,
+//                        date = eventDate,
+//                        time = eventTime,
+//                        address = eventAddress.text,
+//                        tasks = tasks
+//                    ))
+//                    onDismiss()
+//                }
+//            ) {
+//                Text("Create Event")
+//            }
+//        },
+//        dismissButton = {
+//            Button(onClick = { onDismiss() }) {
+//                Text("Cancel")
+//            }
+//        }
+//    )
+//}
+//
+//@Preview
+//@Composable
+//fun NewEventDialogPreview() {
+//    var dialogVisible by remember { mutableStateOf(true) }
+//
+//    if (dialogVisible) {
+//        NewEventDialog(
+//            host = NavHostController(context = LocalContext.current),
+//            onDismiss = { dialogVisible = false },
+//            onEventCreated = { event ->
+//                // Handle the created event here
+//            }
+//        )
+//    }
+//}
 
 //
 // @Composable

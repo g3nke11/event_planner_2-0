@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -63,6 +65,20 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.navigation.compose)
+
+    // Import the Firebase BoM
+
+    // TODO: Add the dependencies for Firebase products you want to use
+    // When using the BoM, don't specify versions in Firebase dependencies
+
+    // Add the dependencies for any other desired Firebase products
+    // https://firebase.google.com/docs/android/setup#available-libraries
+
+    implementation(platform("com.google.firebase:firebase-bom:33.9.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-firestore")
+
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
