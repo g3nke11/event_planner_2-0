@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 
-    id("com.google.gms.google-services")
+    id("com.google.gms.google-services")  // Apply this plugin in the plugins block (this is the correct way)
 }
 
 android {
@@ -11,7 +11,7 @@ android {
     compileSdk = 35
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.2" // Check latest version
+        kotlinCompilerExtensionVersion = "1.5.2" // Check the latest version
     }
 
     defaultConfig {
@@ -57,7 +57,6 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.runtime.android)
     implementation(libs.androidx.storage)
-    implementation(libs.androidx.storage)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.activity.compose) // Required for setContent
     implementation(libs.androidx.ui)
@@ -66,19 +65,12 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.navigation.compose)
 
-    // Import the Firebase BoM
-
-    // TODO: Add the dependencies for Firebase products you want to use
-    // When using the BoM, don't specify versions in Firebase dependencies
-
-    // Add the dependencies for any other desired Firebase products
-    // https://firebase.google.com/docs/android/setup#available-libraries
-
+    // Firebase dependencies
     implementation(platform("com.google.firebase:firebase-bom:33.9.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-firestore")
 
-
+    // Testing dependencies
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -87,3 +79,4 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
+

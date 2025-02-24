@@ -13,7 +13,10 @@ import java.time.LocalTime
 //}
 
 data class Task(
-    val name: String,
-    val description: String,
-    val completed: Boolean = false
-)
+    val name: String = "",
+    val description: String = "",
+    val completed: Boolean = false  // Assuming there is a completed field
+) {
+    // Firestore needs this constructor for deserialization
+    constructor() : this("", "", false)
+}

@@ -1,35 +1,40 @@
 package com.example.event_planner_2_0.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.event_planner_2_0.events.Event
-import com.example.event_planner_2_0.ui.Navigation
 import androidx.navigation.NavHostController
+import com.example.event_planner_2_0.events.Event
 import com.example.event_planner_2_0.entities.Task
-import java.time.LocalDate
-import java.time.LocalTime
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
-import android.util.Log
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-
+import com.example.event_planner_2_0.ui.Navigation
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
+import com.google.firebase.Timestamp
+import java.util.*
 
 val myEvent: Event = Event(
     type = "Event",
     title = "Birthday Party",
     description = "This is my plan for my Birthday Party",
-    date = LocalDate.now(),
-    time = LocalTime.now(),
+    // Convert LocalDate to Firestore Timestamp
+    date = Timestamp(Date.from(LocalDate.now().atStartOfDay().atZone(java.time.ZoneId.systemDefault()).toInstant())),
+    // Convert LocalTime to Firestore Timestamp
+    time = Timestamp(Date.from(LocalTime.now().atDate(LocalDate.now()).atZone(java.time.ZoneId.systemDefault()).toInstant())),
     address = "570 South 2nd West, Rexburg ID",
     tasks = listOf(
         Task(name = "Buy a cake", description = "Get a big chocolate cake"),
@@ -45,22 +50,32 @@ fun EventsScreen(host: NavHostController) {
     // State to store the list of events
     val events = remember { mutableStateOf<List<Event>>(emptyList()) }
 
-    // Fetch data from Firestore when the composable is first loaded
+    // Firestore query to fetch events
     LaunchedEffect(Unit) {
-        // Firestore query to fetch events
         db.collection("events")
             .get()
             .addOnSuccessListener { result: QuerySnapshot ->
                 // Map the query results to Event objects and update the state
                 val eventList = result.documents.mapNotNull { document ->
                     try {
+                        // Handle 'date' and 'time' fields as Timestamps
+                        val firestoreDate = document.getTimestamp("date")?.toDate()
+                        val firestoreTime = document.getTimestamp("time")?.toDate()
+
+                        // Create Event object with the raw Timestamps
                         val event = document.toObject(Event::class.java)
-                        event?.copy(id = document.id) // Add Firestore document ID
+                        event?.copy(
+                            id = document.id,
+                            date = firestoreDate?.let { Timestamp(it) },
+                            time = firestoreTime?.let { Timestamp(it) }
+                        )
                     } catch (e: Exception) {
                         Log.e("Firestore", "Error parsing event", e)
                         null
                     }
                 }
+
+                Log.d("Firestore", "Fetched Events: $eventList")
                 events.value = eventList // Update the state with the fetched events
             }
             .addOnFailureListener { exception ->
@@ -68,10 +83,11 @@ fun EventsScreen(host: NavHostController) {
             }
     }
 
+    // Layout for displaying events
     Column(modifier = Modifier.padding(16.dp)) {
         LazyColumn(modifier = Modifier.weight(1f)) {
-            items(events.value) { event ->
-                EventCard(event)
+            items(events.value, key = { it.id }) { event ->
+                EventCard(event, db, events)
             }
         }
 
@@ -86,7 +102,7 @@ fun EventsScreen(host: NavHostController) {
 }
 
 @Composable
-fun EventCard(event: Event) {
+fun EventCard(event: Event, db: FirebaseFirestore, events: MutableState<List<Event>>) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -104,6 +120,17 @@ fun EventCard(event: Event) {
             Text(text = "Tasks:")
             event.tasks.forEach { task ->
                 TaskItem(task)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Delete Button
+            Button(
+                onClick = {
+                    deleteEvent(event.id, db, events)
+                }
+            ) {
+                Text(text = "Delete Event")
             }
         }
     }
@@ -125,4 +152,18 @@ fun EventNavButton(content: String, route: String, host: NavHostController) {
     Button(onClick = { host.navigate(route) }) {
         Text(content)
     }
+}
+
+fun deleteEvent(eventId: String, db: FirebaseFirestore, events: MutableState<List<Event>>) {
+    db.collection("events")
+        .document(eventId)
+        .delete()
+        .addOnSuccessListener {
+            Log.d("Firestore", "Event deleted successfully.")
+            // Update the events list to remove the deleted event
+            events.value = events.value.filter { it.id != eventId }
+        }
+        .addOnFailureListener { exception ->
+            Log.e("Firestore", "Error deleting event: $exception")
+        }
 }

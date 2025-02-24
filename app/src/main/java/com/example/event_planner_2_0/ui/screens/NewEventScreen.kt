@@ -52,41 +52,59 @@ fun NewEventScreen(navController: NavHostController) {
     var taskDescription by remember { mutableStateOf("") }
     var tasks by remember { mutableStateOf(listOf<Task>()) }
 
+    val context = LocalContext.current
+    val calendar = Calendar.getInstance()
+
+    // DatePicker dialog
+    val datePickerDialog = DatePickerDialog(
+        context,
+        { _, year, month, dayOfMonth ->
+            date = LocalDate.of(year, month + 1, dayOfMonth) // month is 0-based in DatePickerDialog
+        },
+        calendar.get(Calendar.YEAR),
+        calendar.get(Calendar.MONTH),
+        calendar.get(Calendar.DAY_OF_MONTH)
+    )
+
+    // TimePicker dialog
+    val timePickerDialog = TimePickerDialog(
+        context,
+        { _, hourOfDay, minute ->
+            time = LocalTime.of(hourOfDay, minute)
+        },
+        calendar.get(Calendar.HOUR_OF_DAY),
+        calendar.get(Calendar.MINUTE),
+        true // 24-hour format
+    )
+
+
     // Function to save the event
     fun saveEvent() {
+        // Convert LocalDate to java.util.Date
+        val dateInMillis = Date.from(date.atStartOfDay().atZone(java.time.ZoneId.systemDefault()).toInstant())
+        val timestampDate = com.google.firebase.Timestamp(dateInMillis)
+
+        // Convert LocalTime to java.util.Date (just the time part with today's date)
+        val timeInMillis = Date.from(time.atDate(LocalDate.now()).atZone(java.time.ZoneId.systemDefault()).toInstant())
+        val timestampTime = com.google.firebase.Timestamp(timeInMillis)
+
         val event = Event(
             id = "",
             type = "Event",
             title = title,
             description = description,
-            date = date,
-            time = time,
+            date = timestampDate,  // Firestore Timestamp
+            time = timestampTime,  // Firestore Timestamp
             address = address,
             tasks = tasks
         )
 
-        val firestoreDate = java.util.Date.from(event.date.atStartOfDay().atZone(java.time.ZoneId.systemDefault()).toInstant())
-
-        // Convert LocalTime to java.util.Date (Firestore Timestamp)
-        val firestoreTime = java.util.Date.from(event.time.atDate(LocalDate.now()).atZone(java.time.ZoneId.systemDefault()).toInstant())
-
-        // Convert LocalDate and LocalTime to something Firestore can handle
-        val firestoreEvent = hashMapOf(
-            "type" to event.type,
-            "title" to event.title,
-            "description" to event.description,
-            "date" to com.google.firebase.Timestamp(firestoreDate), // Firestore expects Timestamp
-            "time" to com.google.firebase.Timestamp(firestoreTime), // Firestore expects Timestamp
-            "address" to event.address,
-            "tasks" to event.tasks.map { task -> hashMapOf("name" to task.name, "description" to task.description) } // Map tasks to Firestore format
-        )
-
         val db = FirebaseFirestore.getInstance()
         db.collection("events")
-            .add(firestoreEvent) // Firestore will automatically assign a document ID
+            .add(event) // Firestore will automatically assign a document ID
             .addOnSuccessListener { documentReference ->
                 Toast.makeText(
-                    navController.context,
+                    context,
                     "Event added with ID: ${documentReference.id}",
                     Toast.LENGTH_SHORT
                 ).show()
@@ -95,7 +113,7 @@ fun NewEventScreen(navController: NavHostController) {
             }
             .addOnFailureListener { e ->
                 Toast.makeText(
-                    navController.context,
+                    context,
                     "Error adding event: $e",
                     Toast.LENGTH_SHORT
                 ).show()
@@ -141,12 +159,18 @@ fun NewEventScreen(navController: NavHostController) {
         )
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Event Date (Placeholder)
-        Text(text = "Event Date: ${date}", modifier = Modifier.padding(bottom = 8.dp))
+        // Event Date
+        Text("Event Date: $date")
+        Button(onClick = { datePickerDialog.show() }) {
+            Text("Pick Date")
+        }
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Event Time (Placeholder)
-        Text(text = "Event Time: ${time}", modifier = Modifier.padding(bottom = 8.dp))
+        // Event Time
+        Text("Event Time: $time")
+        Button(onClick = { timePickerDialog.show() }) {
+            Text("Pick Time")
+        }
         Spacer(modifier = Modifier.height(8.dp))
 
         // Task name and description input
@@ -199,6 +223,7 @@ fun NewEventScreen(navController: NavHostController) {
         }
     }
 }
+
 
 
 

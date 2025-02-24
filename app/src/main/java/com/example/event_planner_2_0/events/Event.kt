@@ -5,12 +5,12 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 data class Event(
-    val id: String = "", // Add id field to represent the Firestore document ID
-    val type: String,
-    val title: String,
-    val description: String,
-    val date: LocalDate,
-    val time: LocalTime,
-    val address: String,
-    val tasks: List<Task>
+    val id: String = "",
+    val type: String = "",
+    val title: String = "",
+    val description: String = "",
+    val date: com.google.firebase.Timestamp? = null,  // Use Firestore Timestamp
+    val time: com.google.firebase.Timestamp? = null,  // Use Firestore Timestamp
+    val address: String = "",
+    val tasks: List<Task> = listOf()
 )
