@@ -1,6 +1,9 @@
 package com.example.event_planner_2_0
 
 import com.example.event_planner_2_0.events.Event
+import com.example.event_planner_2_0.events.FHE
+import com.example.event_planner_2_0.events.Lecture
+import com.example.event_planner_2_0.events.Wedding
 
 import android.graphics.pdf.PdfDocument
 import android.os.Bundle
@@ -142,10 +145,10 @@ fun ListItem(event: Event) {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = event.title
+                "Title: ${event.title}"
             )
             Text(
-                text = event.description
+                "Description: ${event.description}"
             )
         }
     }
