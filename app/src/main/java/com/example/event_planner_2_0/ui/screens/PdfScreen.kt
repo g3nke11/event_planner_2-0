@@ -17,15 +17,35 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.time.LocalDate
 import java.time.LocalTime
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.activity.ComponentActivity
 
 @Composable
-fun PdfScreen(host: NavHostController) {
-    Text(text = "pdf screen")
+fun PdfScreen() {
+    var message by remember { mutableStateOf("") }
     val context = LocalContext.current
-    GeneratePDF(myEvent, context)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center
+    ) {
+        Button(onClick = {
+            message = GeneratePDF(myEvent, context).toString()
+        }) {
+            Text("Generate PDF")
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(text = message)
+    }
 }
 
- fun GeneratePDF(event: Event, context: Context) {
+fun GeneratePDF(event: Event, context: Context) {
      val pdfDocument = PdfDocument()
      val paint = Paint()
      val pageInfo = PdfDocument.PageInfo.Builder(300, 600, 1).create()
@@ -72,7 +92,7 @@ fun PdfScreen(host: NavHostController) {
 
 
      // Save the PDF file
-     val file = File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "sample.pdf")
+     val file = File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "event.pdf")
      try {
          val fos = FileOutputStream(file)
          pdfDocument.writeTo(fos)
@@ -84,4 +104,9 @@ fun PdfScreen(host: NavHostController) {
          e.printStackTrace()
      }
 
- }
+}
+@Preview(showBackground = true)
+@Composable
+fun PreviewGeneratePDFScreen() {
+    PdfScreen()
+}
