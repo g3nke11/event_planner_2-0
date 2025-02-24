@@ -26,7 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.activity.ComponentActivity
 
 @Composable
-fun PdfScreen() {
+fun PdfScreen(host: NavHostController) {
     var message by remember { mutableStateOf("") }
     val context = LocalContext.current
     Column(
@@ -104,9 +104,4 @@ fun GeneratePDF(event: Event, context: Context) {
          e.printStackTrace()
      }
 
-}
-@Preview(showBackground = true)
-@Composable
-fun PreviewGeneratePDFScreen() {
-    PdfScreen()
 }
