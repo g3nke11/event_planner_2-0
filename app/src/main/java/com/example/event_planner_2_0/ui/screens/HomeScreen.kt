@@ -13,6 +13,7 @@ import androidx.navigation.NavHostController
 import com.example.event_planner_2_0.ui.Navigation
 import androidx.compose.foundation.layout.*
 import androidx.navigation.NavController
+import android.content.Context
 
 @Composable
 fun HomeScreen(navController: NavController) {
@@ -36,9 +37,15 @@ fun HomeScreen(navController: NavController) {
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+
+        // Button to generate PDF
+        Button(onClick = { GeneratePDF(myEvent, navController.context) }) {
+            Text(text = "Generate PDF")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
-
 
 @Composable
 fun NavButton(content: String, route: String, host: NavHostController) {
@@ -48,3 +55,4 @@ fun NavButton(content: String, route: String, host: NavHostController) {
         Text(content)
     }
 }
+

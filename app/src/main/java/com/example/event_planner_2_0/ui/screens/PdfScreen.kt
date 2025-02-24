@@ -25,7 +25,7 @@ fun PdfScreen(host: NavHostController) {
     GeneratePDF(myEvent, context)
 }
 
- private fun GeneratePDF(event: Event, context: Context) {
+ fun GeneratePDF(event: Event, context: Context) {
      val pdfDocument = PdfDocument()
      val paint = Paint()
      val pageInfo = PdfDocument.PageInfo.Builder(300, 600, 1).create()
